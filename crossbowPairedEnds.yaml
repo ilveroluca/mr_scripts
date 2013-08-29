@@ -34,45 +34,28 @@ mapred:
 #              -file AWS.pm
 
     - name: Format forward reads
-      mapper: /home/alexey/testBZ2/mapperForward.py
+      mapper: /home/alexey/mr_scripts/mapperForward1.py
       params: -D mapred.reduce.tasks=0
               -D mapred.output.compress=true
               -D mapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
               -input $forwardReads
               -output $temp/formatForward
-              -file /home/alexey/testBZ2/mapperForward.py
+              -file /home/alexey/mr_scripts/mapperForward1.py
 
 
     - name: Format reverse reads
-      mapper: /home/alexey/testBZ2/mapperReverse.py
+      mapper: /home/alexey/mr_scripts/mapperReverse1.py
       params: -Dmapred.reduce.tasks=0
               -Dmapred.output.compress=true
               -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
               -input $reverseReads
-              -output $temp/formatReverse                                                                                                          
-              -file /home/alexey/testBZ2/mapperReverse.py
+              -output $temp/formatReverse                                                                                                                     -file /home/alexey/mr_scripts/mapperReverse1.py
 
-
-    - name: Merge forward and reverse reads
-      mapper: /home/alexey/testBZ2/mapperMerge.py
-      reducer: /home/alexey/testBZ2/reducerMerge.py
-      params: -Dmapred.reduce.tasks=56
-              -Dmapred.output.compress=true
-
-
-    - name: Format reverse reads
-      mapper: /home/alexey/testBZ2/mapperReverse.py
-      params: -Dmapred.reduce.tasks=0
-              -Dmapred.output.compress=true
-              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
-              -input $reverseReads
-              -output $temp/formatReverse
-              -file /home/alexey/testBZ2/mapperReverse.py
 
 
     - name: Merge forward and reverse reads
-      mapper: /home/alexey/testBZ2/mapperMerge.py
-      reducer: /home/alexey/testBZ2/reducerMerge.py
+      mapper: /home/alexey/mr_scripts/mapperMerge1.py
+      reducer: /home/alexey/mr_scripts/reducerMerge1.py
       params: -Dmapred.reduce.tasks=56
               -Dmapred.output.compress=true
               -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
@@ -80,8 +63,8 @@ mapred:
               -Dmapred.text.key.partitioner.options=-k1,1
               -input $temp/format*
               -output $temp/formatMerge
-              -file /home/alexey/testBZ2/mapperMerge.py
-              -file /home/alexey/testBZ2/reducerMerge.py
+              -file /home/alexey/mr_scripts/mapperMerge1.py
+              -file /home/alexey/mr_scripts/reducerMerge1.py
               -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
                                                                                                                                                    
                                                                                                                                                    
