@@ -1,0 +1,183 @@
+name: Crossbow for Pair-ended reads
+description: A scalable software pipeline for whole genome resequencing analysis. It combines Bowtie, an ultrafast and memory efficient short read aligner, and SoapSNP, and an accurate genotyper. These tools are combined in an automatic, parallel pipeline.
+category: Genetics
+version: 1.1.2
+website: http://bowtie-bio.sourceforge.net/crossbow
+author: Ben Langmead et al.
+
+cluster:
+  image: us-east-1/ami-31bc7758
+  type: m1.large,m1.xlarge
+  ports: 80,50030,50070
+  user: ubuntu
+  service: hadoop
+  installMapred: true
+  initScript: install.sh
+
+mapred:
+
+##              -inputformat org.apache.hadoop.mapred.lib.NLineInputFormat
+
+  steps:
+
+#    - name: Preprocess
+#      mapper: Copy.pl --compress=bzip2 --stop=0 --maxperfile=1000000 --s --push=$temp/preproc
+#      params: -input $manifest
+#              -output $temp/preproc
+#              -numReduceTasks 0
+#              -inputformat org.apache.hadoop.mapred.lib.NLineInputFormat
+#              -file Copy.pl
+#              -file Get.pm
+#              -file Counters.pm
+#              -file Util.pm
+#              -file Tools.pm
+#              -file AWS.pm
+
+    - name: Format forward reads
+      mapper: /home/alexey/testBZ2/mapperForward.py
+      params: -D mapred.reduce.tasks=0
+              -D mapred.output.compress=true
+              -D mapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
+              -input $forwardReads
+              -output $temp/formatForward
+              -file /home/alexey/testBZ2/mapperForward.py
+
+
+    - name: Format reverse reads
+      mapper: /home/alexey/testBZ2/mapperReverse.py
+      params: -Dmapred.reduce.tasks=0
+              -Dmapred.output.compress=true
+              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
+              -input $reverseReads
+              -output $temp/formatReverse                                                                                                          
+              -file /home/alexey/testBZ2/mapperReverse.py
+
+
+    - name: Merge forward and reverse reads
+      mapper: /home/alexey/testBZ2/mapperMerge.py
+      reducer: /home/alexey/testBZ2/reducerMerge.py
+      params: -Dmapred.reduce.tasks=56
+              -Dmapred.output.compress=true
+
+
+    - name: Format reverse reads
+      mapper: /home/alexey/testBZ2/mapperReverse.py
+      params: -Dmapred.reduce.tasks=0
+              -Dmapred.output.compress=true
+              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
+              -input $reverseReads
+              -output $temp/formatReverse
+              -file /home/alexey/testBZ2/mapperReverse.py
+
+
+    - name: Merge forward and reverse reads
+      mapper: /home/alexey/testBZ2/mapperMerge.py
+      reducer: /home/alexey/testBZ2/reducerMerge.py
+      params: -Dmapred.reduce.tasks=56
+              -Dmapred.output.compress=true
+              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
+              -Dmap.output.key.field.separator=.
+              -Dmapred.text.key.partitioner.options=-k1,1
+              -input $temp/format*
+              -output $temp/formatMerge
+              -file /home/alexey/testBZ2/mapperMerge.py
+              -file /home/alexey/testBZ2/reducerMerge.py
+              -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
+                                                                                                                                                   
+                                                                                                                                                   
+    - name: Alignment                                                                                                                              
+      mapper: Align.pl  --discard-reads=0 --ref=$reference --destdir=/tmp/$job_id --partlen=2000000 --qual=$quality --truncate=0 -- --partition 500000 --mm -t --hadoopout --startverbose $bowtie_arguments
+      params: -D mapred.output.compress=true                                                                                                       
+              -D mapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec                                                          
+              -input $temp/formatMerge                                                                                                             
+              -output $temp/align                                                                                                                  
+              -numReduceTasks 0 
+              -file source/Align.pl
+              -file source/Get.pm
+              -file source/Counters.pm
+              -file source/Util.pm
+              -file source/Tools.pm
+              -file source/AWS.pm
+
+
+
+    - name: Call SNPs
+      mapper: /bin/cat
+      reducer: source/Soapsnp.pl --discard-ref-bins=0 --refjar=$reference --destdir=/tmp/$job_id  --args=-2_-u_-n_-q --haploid_args=-r_0.0001 --diploid_args=-r_0.00005_-e_0.0001 --basequal=! --partition=1000000 --haploids=all --replace-uscores
+      params: -D stream.num.map.output.key.fields=3
+              -D mapred.text.key.partitioner.options=-k1,2
+              -input $temp/align
+              -output $temp/snp
+              -numReduceTasks 32
+              -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
+              -file source/Soapsnp.pl
+              -file source/Get.pm
+              -file source/Counters.pm
+              -file source/Util.pm
+              -file source/Tools.pm
+              -file source/AWS.pm
+
+
+
+    - name: Postprocess
+      mapper: /bin/cat
+      reducer: source/CBFinish.pl  --cmapjar=$reference --destdir=/tmp/$job_id --output=$output
+      params: -D stream.num.map.output.key.fields=2
+              -D mapred.text.key.partitioner.options=-k1,1
+              -input $temp/snp
+              -output $tempignoreme2
+              -numReduceTasks 30
+              -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
+              -file source/CBFinish.pl
+              -file source/Get.pm
+              -file source/Counters.pm
+              -file source/Util.pm
+              -file source/Tools.pm
+              -file source/AWS.pm
+
+
+  inputs:
+    - id: forwardReads
+      description: Forward reads
+      type: hdfs-folder
+
+    - id: reverseReads
+      description: Reverse reads
+      type: hdfs-folder
+
+
+
+    - id: reference
+      description: Reference in JAR format
+      type: hdfs-file
+
+    - id: bowtie_arguments
+      description: Reporting mode agruments for  Bowtie
+      type: text
+      value: -M 1 -X 500 
+      required: false
+
+   - id: quality
+      description: Quality encoding
+      type: list
+      values: 
+        phred33: phred33
+        phred64: phred64
+        solexa64: solexa64
+      value: phred33
+
+
+  outputs:
+    - id: output
+      description: Output Folder
+      type: hdfs-folder
+      mergeOutput: false
+      download: true
+      zip: false
+
+    - id: temp 
+      description: Temp
+      type: hdfs-folder
+      download: false
+      temp: true
+            
