@@ -1,1 +1,11 @@
 Python scripts for MR jobs for the preprocess stage of the Crossbow
+
+
+crossbowPairedEnds.yaml  --- workflow for the Crossbow
+mapperForward1.py  -- mapper for marking forward reads
+mapperMerge1.py  -- mapper for merging reads
+mapperReverse1.py  -- mapper for marking reverse reads
+MergeReads.py  
+README  
+reducerMerge1.py -- reducer for merging reads 
+settings.yaml
