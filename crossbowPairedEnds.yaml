@@ -33,77 +33,78 @@ mapred:
 #              -file Tools.pm
 #              -file AWS.pm
 
-    - name: Format forward reads
-      mapper: /home/alexey/mr_scripts/mapperForward1.py
-      params: -D mapred.reduce.tasks=0
-              -Dmapred.output.compress=true
-              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
-              -input $forwardReads
-              -output $temp/formatForward
-              -file /home/alexey/mr_scripts/mapperForward1.py
+#    - name: Format forward reads
+#      mapper: /home/alexey/mr_scripts/mapperForward1.py
+#      params: -D mapred.reduce.tasks=0
+#              -Dmapred.output.compress=true
+#              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
+#              -input $forwardReads
+#              -output $temp/formatForward
+#              -file /home/alexey/mr_scripts/mapperForward1.py
 
 
-    - name: Format reverse reads
-      mapper: /home/alexey/mr_scripts/mapperReverse1.py
-      params: -Dmapred.reduce.tasks=0
-              -Dmapred.output.compress=true
-              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
-              -input $reverseReads
-              -output $temp/formatReverse
-              -file /home/alexey/mr_scripts/mapperReverse1.py
-
-
-
-    - name: Merge forward and reverse reads
-      mapper: /home/alexey/mr_scripts/mapperMerge1.py
-      reducer: /home/alexey/mr_scripts/reducerMerge1.py
-      params: -Dmapred.reduce.tasks=56
-              -Dmapred.compress.map.output=true
-              -Dmapred.map.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
-              -Dmapred.output.compress=true
-              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
-              -Dmap.output.key.field.separator=.
-              -Dmapred.text.key.partitioner.options=-k1,1
-              -Dmapred.reduce.slowstart.completed.maps=1.0
-              -Dio.sort.record.percent=0.06
-              -Dio.sort.mb=700
-              -Dtasktracker.http.threads=80
-              -Dio.sort.factor=5
-              -Dmapred.child.java.opts=-Xmx1000m
-              -Dmapred.inmem.merge.threshold=0
-              -Dmapred.reduce.parallel.copies=50
-              -input $temp/format*              
-              -output $temp/formatMerge
-              -file /home/alexey/mr_scripts/mapperMerge1.py
-              -file /home/alexey/mr_scripts/reducerMerge1.py
-              -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
+#    - name: Format reverse reads
+#      mapper: /home/alexey/mr_scripts/mapperReverse1.py
+#      params: -Dmapred.reduce.tasks=0
+#              -Dmapred.output.compress=true
+#              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
+#              -input $reverseReads
+#              -output $temp/formatReverse
+#              -file /home/alexey/mr_scripts/mapperReverse1.py
+#
+#
+#
+#    - name: Merge forward and reverse reads
+#      mapper: /home/alexey/mr_scripts/mapperMerge1.py
+#      reducer: /home/alexey/mr_scripts/reducerMerge1.py
+#      params: -Dmapred.reduce.tasks=56
+#              -Dmapred.compress.map.output=true
+#              -Dmapred.map.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
+#              -Dmapred.output.compress=true
+#              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
+#              -Dmap.output.key.field.separator=.
+#              -Dmapred.text.key.partitioner.options=-k1,1
+#              -Dmapred.reduce.slowstart.completed.maps=1.0
+#              -Dio.sort.record.percent=0.06
+#              -Dio.sort.mb=700
+#              -Dtasktracker.http.threads=80
+#              -Dio.sort.factor=5
+#              -Dmapred.child.java.opts=-Xmx1000m
+#              -Dmapred.inmem.merge.threshold=0
+#              -Dmapred.reduce.parallel.copies=50
+#              -input $temp/format*              
+#              -output $temp/formatMerge
+#              -file /home/alexey/mr_scripts/mapperMerge1.py
+#              -file /home/alexey/mr_scripts/reducerMerge1.py
+#              -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
                                                                                                                                                    
                                                                                                                                                    
-    - name: Alignment                                                                                                                              
-      mapper: Align.pl  --discard-reads=0 --ref=$reference --destdir=/tmp/$job_id --partlen=1000000 --qual=$quality --truncate=0 -- --partition 1000000 --mm -t --hadoopout --startverbose $bowtie_arguments
-      params: -D mapred.output.compress=true                                                                                                       
-              -D mapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec                                                          
-              -input $temp/formatMerge
-              -output $temp/align                                                                                                                  
-              -numReduceTasks 0 
-              -file Align.pl
-              -file Get.pm
-              -file Counters.pm
-              -file Util.pm
-              -file Tools.pm
-              -file AWS.pm
-
+#    - name: Alignment                                                                                                                              
+#      mapper: Align.pl  --discard-reads=0 --ref=$reference --destdir=/tmp/$job_id --partlen=1000000 --qual=$quality --truncate=0 -- --partition 1000000 --mm -t --hadoopout --startverbose $bowtie_arguments
+#      params: -D mapred.output.compress=true                                                                                                       
+#              -D mapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec                                                          
+#              -input /user/hdfs/workspace/raalesir/output/crossbow/crossbowPairedEnds-20130913-213022/temp/temp/formatMerge
+ #             -output $temp/align                                                                                                                  
+  #            -numReduceTasks 0 
+  #            -file Align.pl
+  #            -file Get.pm
+  #            -file Counters.pm
+  #            -file Util.pm
+  #            -file Tools.pm
+  #            -file AWS.pm
+#
 
 
     - name: Call SNPs
       mapper: /bin/cat
       reducer: Soapsnp.pl --discard-ref-bins=0 --refjar=$reference --destdir=/tmp/$job_id  --args=-2_-u_-n_-q --haploid_args=-r_0.0001 --diploid_args=-r_0.00005_-e_0.0001 --basequal=! --partition=1000000 --haploids=all --replace-uscores
       params: -D stream.num.map.output.key.fields=3
-              -Dmapred.compress.map.output=true
-              -Dmapred.map.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
-              -input $temp/align
+              -D mapred.text.key.partitioner.options=-k1,2
+              -Dmapred.reduce.slowstart.completed.maps=1.0
+              -Dio.sort.mb=700
+              -input /user/hdfs/workspace/raalesir/output/crossbow/crossbowPairedEnds-20130914-074114/temp/temp/align
               -output $temp/snp
-              -numReduceTasks 112
+              -numReduceTasks 56
               -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
               -file Soapsnp.pl
               -file Get.pm
