@@ -83,7 +83,7 @@ mapred:
       mapper: Align.pl  --discard-reads=0 --ref=$reference --destdir=/tmp/$job_id --partlen=1000000 --qual=$quality --truncate=0 -- --partition 1000000 --mm -t --hadoopout --startverbose $bowtie_arguments
       params: -D mapred.output.compress=true                                                                                                       
               -D mapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec                                                          
-              -input /user/hdfs/workspace/raalesir/output/crossbow/crossbowPairedEnds-20130913-213022/temp/temp/formatMerge
+              -input $temp/formatMerge
              -output $temp/align                                                                                                                  
               -numReduceTasks 0 
               -file Align.pl
@@ -102,7 +102,7 @@ mapred:
               -D mapred.text.key.partitioner.options=-k1,2
               -Dmapred.reduce.slowstart.completed.maps=1.0
               -Dio.sort.mb=700
-              -input /user/hdfs/workspace/raalesir/output/crossbow/crossbowPairedEnds-20130914-074114/temp/temp/align
+              -input $temp/align
               -output $temp/snp
               -numReduceTasks 112
               -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
