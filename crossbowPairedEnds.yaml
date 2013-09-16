@@ -81,10 +81,10 @@ mapred:
                                                                                                                                                    
     - name: Alignment                                                                                                                              
       mapper: Align.pl  --discard-reads=0 --ref=$reference --destdir=/tmp/$job_id --partlen=1000000 --qual=$quality --truncate=0 -- --partition 1000000 --mm -t --hadoopout --startverbose $bowtie_arguments
-      params: -D mapred.output.compress=true                                                                                                       
-              -D mapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec                                                          
+      params: -Dmapred.output.compress=true
+              -Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec
               -input $temp/formatMerge
-             -output $temp/align                                                                                                                  
+              -output $temp/align                                                                                                                  
               -numReduceTasks 0 
               -file Align.pl
               -file Get.pm
@@ -92,7 +92,7 @@ mapred:
               -file Util.pm
               -file Tools.pm
               -file AWS.pm
-
+#
 
 
     - name: Call SNPs
@@ -101,10 +101,11 @@ mapred:
       params: -D stream.num.map.output.key.fields=3
               -D mapred.text.key.partitioner.options=-k1,2
               -Dmapred.reduce.slowstart.completed.maps=1.0
+              -Dmapred.task.timeout=1200000
               -Dio.sort.mb=700
               -input $temp/align
               -output $temp/snp
-              -numReduceTasks 112
+              -numReduceTasks 280
               -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner
               -file Soapsnp.pl
               -file Get.pm
