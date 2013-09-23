@@ -9,7 +9,7 @@ def main():
 	lines = read_input(sys.stdin)
     	for line in lines:
 		if (line[0] == "@" and len(line) < 100):
-#                        print "%s" %line.split('/')[0]+'.1'
+        #              print "%s" %line.split('/')[0]+'.1'
 			print "%s" %''.join(line.split('.'))+'.1'
                 else:
                         print  line
