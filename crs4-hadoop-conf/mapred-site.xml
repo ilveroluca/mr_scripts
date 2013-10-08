@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+	<property>
+		<name>mapred.job.tracker</name>
+		<value>oghe070.crs4.int:9001</value>
+		<final>true</final>
+	</property>
+
+	<property>
+		<name>mapred.local.dir</name>
+		<value>/scratch/luca_hadoop/mapred</value>
+	</property>
+
+	<property>
+		<name>mapred.tasktracker.map.tasks.maximum</name><value>6</value>
+	</property>
+	<property>
+		<name>mapred.tasktracker.reduce.tasks.maximum</name><value>4</value>
+	</property>
+	<property>
+		<name>mapred.compress.map.output</name><value>true</value>
+	</property>
+	<property><name>mapred.child.java.opts</name> <value>-Xmx1024m</value></property>
+	<property><name>mapred.job.reduce.input.buffer.percent</name> <value>0.75</value></property>
+	<property><name>io.sort.mb</name> <value>500</value></property>
+	<property><name>io.sort.factor</name> <value>50</value></property>
+	<property><name>io.file.buffer.size</name> <value>131072</value></property>
+	<property><name>fs.inmemory.size.mb</name> <value>200</value></property>
+
+</configuration>

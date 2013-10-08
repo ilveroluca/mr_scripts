@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+	<property>
+		<name>dfs.namenode.name.dir</name>
+		<value>/scratch/luca_hadoop/dfs/name/</value>
+		<final>true</final>
+	</property>
+
+	<property>
+		<name>dfs.datanode.data.dir</name>
+		<value>/scratch/luca_hadoop/dfs/data/</value>
+		<final>true</final>
+	</property>
+
+
+	<property>
+		<name>dfs.name.dir</name>
+		<value>/scratch/luca_hadoop/dfs/name/</value>
+		<final>true</final>
+	</property>
+
+	<property>
+		<name>dfs.data.dir</name>
+		<value>/scratch/luca_hadoop/dfs/data/</value>
+		<final>true</final>
+	</property>
+
+	<property>
+		<name>dfs.replication</name>
+		<value>2</value>
+	</property>
+
+</configuration>
