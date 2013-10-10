@@ -18,11 +18,23 @@ RootDir=/SHARE/USERFS/els7/users/pireddu/alexey
 AlexeyScripts="${RootDir}/mr_scripts"
 Workflow="${AlexeyScripts}/crossbow_workflow.sh"
 
-set -o errexit
-set -o nounset
+LogFile="${RootDir}/$(date +"%F_%T")_automatic_${nNodes}_node_log"
+
+#################### Error trap ######################
+
+# a generic error trap that prints the command that failed before exiting the script.
+function error_trap() {
+	printf -v message "Unexpected error.  Command: %s\nExiting\n" "${BASH_COMMAND}"
+	printf "${message}" >&2
+	printf "${message}" >> ${LogFile}
+	exit 1
+}
+
+trap error_trap ERR
 
 function log() {
-	echo $(date "+%Y-%m-%d %H:%M:%S") $* >> ${LogFile}
+	echo -e $(date +"%F %T") -- $@ >> ${LogFile}
+	return 0
 }
 
 function start_dataset() {
@@ -33,6 +45,28 @@ function end_dataset() {
 	log "============== end $* ================"
 }
 
+function error() {
+	log "There's been an error: " $@
+	exit 1
+}
+
+if [ ! -d "${RootDir}" ]; then
+	error "Couldn't find RootDir ${RootDir}"
+fi
+
+if [ ! -d "${AlexeyScripts}" ]; then
+	error "Couldn't find AlexeyScripts directory ${AlexeyScripts}"
+fi
+
+if [ ! -f "${Workflow}" ]; then
+	error "Workflow path ${Workflow} doesn't point to a file"
+fi
+
+
+log "nNodes: ${nNodes}"
+log "nSamples: ${nSamples}"
+log "HADOOP_CONF_DIR: ${HADOOP_CONF_DIR}"
+log "HdfsHome: ${HdfsHome}"
 
 ################# d1
 start_dataset d1
