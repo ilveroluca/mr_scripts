@@ -81,7 +81,7 @@ sleep 30
 log "Launching experiments"
 for i in $(seq 1 $nSamples) ; do
 	log "sample ${i} of ${nSamples}"
-	"${RootDir}/${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d1) TAIR10.jar 1 $(($nNodes * 4 - 1)) d1/Schneeberger.2009.single_end.fixed >> ${LogFile} 2>&1
+	"${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d1) TAIR10.jar 1 $(($nNodes * 4 - 1)) d1/Schneeberger.2009.single_end.fixed >> ${LogFile} 2>&1
 done
 
 end_dataset d1
@@ -102,14 +102,13 @@ wait
 log "Copy finished.  Waiting..."
 sleep 30
 
-
 ################# d2 half
 start_dataset d2_half
 
 log "Launching experiments"
 for i in $(seq 1 $nSamples) ; do
 	log "sample ${i} of ${nSamples}"
-	"${RootDir}/${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d2_half) TAIR10.jar 1 $(($nNodes * 4 - 1)) d2/Galvao.2012.reads1_trimmed.fq >> ${LogFile} 2>&1
+	"${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d2_half) TAIR10.jar 1 $(($nNodes * 4 - 1)) d2/Galvao.2012.reads1_trimmed.fq >> ${LogFile} 2>&1
 done
 
 end_dataset d2_half
@@ -120,7 +119,7 @@ start_dataset d2_full
 log "Launching experiments"
 for i in $(seq 1 $nSamples) ; do
 	log "sample ${i} of ${nSamples}"
-	"${RootDir}/${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d2_full) TAIR10.jar 2 $(($nNodes * 4 - 1)) d2/Galvao.2012.reads{1,2}_trimmed.fq >> ${LogFile} 2>&1
+	"${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d2_full) TAIR10.jar 2 $(($nNodes * 4 - 1)) d2/Galvao.2012.reads{1,2}_trimmed.fq >> ${LogFile} 2>&1
 done
 
 end_dataset d2_full
@@ -134,8 +133,8 @@ log "loading data for d3"
 
 cd ${RootDir}/datasets/d3
 hadoop dfs -mkdir d3
-hadoop dfs -put SRR611085_1.fastq d3/ &
-hadoop dfs -put SRR611085_2.fastq d3/ &
+hadoop dfs -put SRR611085_1_fixed.fastq d3/ &
+hadoop dfs -put SRR611085_2_fixed.fastq d3/ &
 log "Waiting for copy to finish"
 wait
 
@@ -149,7 +148,7 @@ start_dataset d3_half
 log "Launching experiments"
 for i in $(seq 1 $nSamples) ; do
 	log "sample ${i} of ${nSamples}"
-	"${RootDir}/${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d3_half) TAIR10.jar 1 $(($nNodes * 4 - 1)) d3/SRR611085_1.fastq >> ${LogFile} 2>&1
+	"${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d3_half) TAIR10.jar 1 $(($nNodes * 4 - 1)) d3/SRR611085_1_fixed.fastq >> ${LogFile} 2>&1
 done
 
 end_dataset d3_half
@@ -160,7 +159,7 @@ start_dataset d3_full
 log "Launching experiments"
 for i in $(seq 1 $nSamples) ; do
 	log "sample ${i} of ${nSamples}"
-	"${RootDir}/${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d3_full) TAIR10.jar 2 $(($nNodes * 4 - 1)) d3/SRR611085_{1,2}.fastq >> ${LogFile} 2>&1
+	"${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d3_full) TAIR10.jar 2 $(($nNodes * 4 - 1)) d3/SRR611085_{1,2}_fixed.fastq >> ${LogFile} 2>&1
 done
 
 end_dataset d3_full
@@ -189,7 +188,7 @@ start_dataset d4_half
 log "Launching experiments"
 for i in $(seq 1 $nSamples) ; do
 	log "sample ${i} of ${nSamples}"
-	"${RootDir}/${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d4_half) TAIR10.jar 1 $(($nNodes * 4 - 1)) d4/reads1.fq >> ${LogFile} 2>&1
+	"${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d4_half) TAIR10.jar 1 $(($nNodes * 4 - 1)) d4/reads1.fq >> ${LogFile} 2>&1
 done
 
 end_dataset d4_half
@@ -200,7 +199,7 @@ start_dataset d4_full
 log "Launching experiments"
 for i in $(seq 1 $nSamples) ; do
 	log "sample ${i} of ${nSamples}"
-	"${RootDir}/${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d4_full) TAIR10.jar 2 $(($nNodes * 4 - 1)) d4/reads{1,2}.fq >> ${LogFile} 2>&1
+	"${Workflow}" $(printf ${ResultsFileTemplate} $nNodes d4_full) TAIR10.jar 2 $(($nNodes * 4 - 1)) d4/reads{1,2}.fq >> ${LogFile} 2>&1
 done
 
 end_dataset d4_full
