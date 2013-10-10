@@ -1,12 +1,22 @@
 #!/bin/bash
 
-nNodes=8
-nSamples=3
+#set -x
+
+set -o errexit
+set -o nounset
+
+nNodes=${nNodes:-7}
+nSamples=${nSamples:-3}
+HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-/SHARE/USERFS/els7/users/pireddu/hadoop-1.2.1/crs4-conf}
+HdfsHome=${HdfsHome:-hdfs://oghe070.crs4.int:8020/user/pireddu}
+
+export HADOOP_CONF_DIR HdfsHome
+
 ResultsFileTemplate="d%s_nodes_%s.results"
 
 RootDir=/SHARE/USERFS/els7/users/pireddu/alexey
-Workflow=crossbow_workflow.sh
-LogFile="${RootDir}/automatic_${nNodes}_node_log"
+AlexeyScripts="${RootDir}/mr_scripts"
+Workflow="${AlexeyScripts}/crossbow_workflow.sh"
 
 set -o errexit
 set -o nounset

@@ -6,7 +6,6 @@ set -o nounset
 export BOWTIE_INDEXES=/SHARE/USERFS/els7/users/pireddu/alexey/indexes
 export CROSSBOW_HOME=/SHARE/USERFS/els7/users/pireddu/alexey/crossbow-1.2.0
 export PATH=${CROSSBOW_HOME}/bin/linux64:/SHARE/USERFS/els7/users/pireddu/alexey/programs:${PATH}
-export HADOOP_CONF_DIR=/SHARE/USERFS/els7/users/pireddu/hadoop-1.2.1/crs4-conf
 export HADOOP_PREFIX=/SHARE/USERFS/els7/users/pireddu/hadoop-1.2.1
 export PATH=${HADOOP_PREFIX}/bin:$(echo $PATH | sed -e "s%${HADOOP_PREFIX}/bin:\?%%g")
 
@@ -15,7 +14,7 @@ if [ $# -ne 5 -a $# -ne 6 ]; then
 	exit 1
 fi
 
-HdfsHome="hdfs://oghe070.crs4.int:8020/user/pireddu"
+HdfsHome=${HdfsHome:-hdfs://oghe070.crs4.int:8020/user/pireddu}
 AlexeyScripts="/SHARE/USERFS/els7/users/pireddu/alexey/mr_scripts"
 Destination="$(readlink -f ${1})"
 Reference="${2}"
@@ -25,7 +24,6 @@ Input1="${5}"
 Input2="${6:-}"
 WorkDir=${HdfsHome}/`basename $(mktemp -u)`
 Time="/usr/bin/time -o ${Destination} --append --format \"%C\t%e:%U:%S\" "
-
 
 echo "Using: " >&2
 printf "\tHdfsHome: ${HdfsHome}\n" >&2
