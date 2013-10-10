@@ -38,29 +38,23 @@ printf "\tWorkDir: ${WorkDir}\n" >&2
 
 echo "Starting:  $(date)" | tee -a ${Destination}
 
-# Step 1: fix read ids
-${Time} hadoop jar "${HADOOP_PREFIX}/contrib/streaming/hadoop-streaming-1.2.1.jar" -input "${Input1}" -output "${WorkDir}/output_pp1" -mapper "${AlexeyScripts}/mapperForward1.py" -numReduceTasks 0 &
-
-if [ -n "${Input2}" ]; then
-	${Time} hadoop jar "${HADOOP_PREFIX}/contrib/streaming/hadoop-streaming-1.2.1.jar" -input "${Input2}" -output "${WorkDir}/output_pp2" -mapper "${AlexeyScripts}/mapperReverse1.py" -numReduceTasks 0
-fi
-
-wait
-
 # Merge
 # with paired reads give both input directories and -numReduceTasks > 0
+Merge="hadoop jar ${HADOOP_PREFIX}/contrib/streaming/hadoop-streaming-1.2.1.jar \
+-Dmap.output.key.field.separator=/ \
+-Dmapred.text.key.partitioner.options=-k1,1 \
+-Dmapred.text.key.comparator.options=-k1,1 \
+-partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
+"
+
 if [ -n "${Input2}" ]; then
-	${Time} hadoop jar "${HADOOP_PREFIX}/contrib/streaming/hadoop-streaming-1.2.1.jar" -input "${WorkDir}/output_pp1" -input "${WorkDir}/output_pp2" -output "${WorkDir}/merged" -mapper "${AlexeyScripts}/mapperMerge1.py" -reducer "${AlexeyScripts}/reducerMerge1.py" -numReduceTasks ${NumReduce}
+	${Time} ${Merge} -input "${Input1}" -input "${Input2}" -output "${WorkDir}/merged" -mapper "${AlexeyScripts}/mapperMerge1.py" -reducer "${AlexeyScripts}/reducerMerge1.py" -numReduceTasks ${NumReduce}
 else
 	# only difference from above is numReduceTasks
-	${Time} hadoop jar "${HADOOP_PREFIX}/contrib/streaming/hadoop-streaming-1.2.1.jar" -input "${WorkDir}/output_pp1" -output "${WorkDir}/merged" -mapper "${AlexeyScripts}/mapperMerge1.py" -reducer "${AlexeyScripts}/reducerMerge1.py" -numReduceTasks 0
+	${Time} ${Merge} -input "${Input1}" -output "${WorkDir}/merged" -mapper "${AlexeyScripts}/mapperMerge1.py" -reducer "${AlexeyScripts}/reducerMerge1.py" -numReduceTasks 0
 fi
 
-# remove stage 1 output
-hadoop dfs -rmr ${WorkDir}/output_pp1/ || true 
-hadoop dfs -rmr ${WorkDir}/output_pp2/ || true 
-
-# finally launch crossbow
+# launch crossbow
 ${Time} "${CROSSBOW_HOME}/cb_hadoop" --input "${WorkDir}/merged" --output "${WorkDir}/cb_output" --reference "${HdfsHome}/${Reference}"
 
 echo "Finished:  $(date)" | tee -a ${Destination}
