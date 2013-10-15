@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+# Call with hadoop streaming, setting the following properties:
+#
+#    hadoop jar ${HADOOP_PREFIX}/contrib/streaming/hadoop-streaming-1.2.1.jar \
+#    -Dmap.output.key.field.separator=/ \
+#    -Dmapred.text.key.partitioner.options=-k1,1 \
+#    -Dmapred.text.key.comparator.options=-k1,1 \
+#    -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
+# 
+
 import sys
 
 
