@@ -208,4 +208,4 @@ log "Clearing space"
 hadoop dfs -rmr /user/pireddu/d4
 
 log "All datasets from d1 to d4 finished"
-echo "Hey, the runs are finished" | mail -s "experiments finished" pireddu@crs4.it
+echo "Hey, the runs on $(hostname) are finished" | mail -s "experiments finished" pireddu@crs4.it
