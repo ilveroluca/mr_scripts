@@ -6,7 +6,7 @@ set -o errexit
 set -o nounset
 
 export BOWTIE_INDEXES=/SHARE/USERFS/els7/users/pireddu/alexey/indexes
-export CROSSBOW_HOME=/SHARE/USERFS/els7/users/pireddu/alexey/crossbow-1.2.0
+export CROSSBOW_HOME=/SHARE/USERFS/els7/users/pireddu/alexey/crossbow-compress-1.2.0
 export PATH=${CROSSBOW_HOME}/bin/linux64:/SHARE/USERFS/els7/users/pireddu/alexey/programs:${PATH}
 export HADOOP_PREFIX=/SHARE/USERFS/els7/users/pireddu/hadoop-1.2.1
 export PATH=${HADOOP_PREFIX}/bin:$(echo $PATH | sed -e "s%${HADOOP_PREFIX}/bin:\?%%g")
@@ -27,12 +27,12 @@ Input2="${6:-}"
 WorkDir=${HdfsHome}/`basename $(mktemp -u)`
 Time="/usr/bin/time -o ${Destination} --append --format \"%C\t%e:%U:%S\" "
 
-
 function clean_up_tmp() {
 	echo "Cleaning up local tmp dir" >&2
 	pdsh -w $(tr '\n' , < ${HADOOP_CONF_DIR}/slaves) 'rm /tmp/crossbow-* -rf '
 	rm /tmp/crossbow-* -rf
 }
+
 
 echo "Using: " >&2
 printf "\tHdfsHome: ${HdfsHome}\n" >&2
@@ -50,9 +50,12 @@ echo "Starting:  $(date)" | tee -a ${Destination}
 # Merge
 # with paired reads give both input directories and -numReduceTasks > 0
 Merge="hadoop jar ${HADOOP_PREFIX}/contrib/streaming/hadoop-streaming-1.2.1.jar \
+-Dmapred.min.split.size=68300900 \
 -Dmap.output.key.field.separator=/ \
 -Dmapred.text.key.partitioner.options=-k1,1 \
 -Dmapred.text.key.comparator.options=-k1,1 \
+-Dmapred.output.compress=true \
+-Dmapred.output.compression.codec=org.apache.hadoop.io.compress.BZip2Codec \
 -partitioner org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner \
 "
 
