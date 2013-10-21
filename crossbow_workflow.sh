@@ -1,5 +1,7 @@
 #!/bin/bash
 
+module load pdsh
+
 set -o errexit
 set -o nounset
 
@@ -24,6 +26,13 @@ Input1="${5}"
 Input2="${6:-}"
 WorkDir=${HdfsHome}/`basename $(mktemp -u)`
 Time="/usr/bin/time -o ${Destination} --append --format \"%C\t%e:%U:%S\" "
+
+
+function clean_up_tmp() {
+	echo "Cleaning up local tmp dir" >&2
+	pdsh -w $(tr '\n' , < ${HADOOP_CONF_DIR}/slaves) 'rm /tmp/crossbow-* -rf '
+	rm /tmp/crossbow-* -rf
+}
 
 echo "Using: " >&2
 printf "\tHdfsHome: ${HdfsHome}\n" >&2
@@ -56,6 +65,7 @@ fi
 
 # launch crossbow
 ${Time} "${CROSSBOW_HOME}/cb_hadoop" --input "${WorkDir}/merged" --output "${WorkDir}/cb_output" --reference "${HdfsHome}/${Reference}"
+clean_up_tmp
 
 echo "Finished:  $(date)" | tee -a ${Destination}
 
